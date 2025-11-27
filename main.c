@@ -1,3 +1,4 @@
+
 /*
  * File:   main.c
  * Author: UPDATE THIS WITH YOUR GROUP MEMBER NAMES OR POTENTIALLY LOSE POINTS
@@ -64,6 +65,36 @@ extern uint8_t buttonState;
  * You might find it useful to add your own #defines to improve readability here
  */
 
+// Helper function to handle calculations of PWM.
+void PWM(uint8_t led, uint16_t duty) {
+    
+    // Clamp duty cycle 
+    if (duty < 5) duty = 5;
+    if (duty > 95) duty = 95;
+    
+    uint32_t period_ms = 25;
+    uint32_t on_time  = (period_ms * duty) / 100;
+    uint32_t off_time = period_ms - on_time;
+
+    
+    // Turn LED ON
+    if (led == 0) {
+        LATBbits.LATB9 = 1;  // LED1
+    } else {
+        LATAbits.LATA6 = 1;  // LED2
+    }
+    delayMS(on_time + 1);
+    
+    // Turn LED OFF
+    if (led == 0) {
+        LATBbits.LATB9 = 0;  // LED1
+    } else {
+        LATAbits.LATA6 = 0;  // LED2
+    }
+    delayMS(off_time + 1);
+}
+
+
 int main(void) {
     
     /** This is usually where you would add run-once code
@@ -88,7 +119,16 @@ int main(void) {
     
     while(1) {
         sample = do_ADC();
-        brightness = (sample + MAX_ADC_VALUE / 2) * 100 / MAX_ADC_VALUE;
+        brightness = ((uint32_t)sample * 100) / MAX_ADC_VALUE;
+        
+        // For TESTING!, remove after.
+        Disp2String("Sample: ");
+        Disp2Dec(sample);
+        Disp2String(" Bright: ");
+        Disp2Dec(brightness);
+        Disp2String("\r\n");
+    
+    
         if (CNflag) {// Only check IO if a change happens
             IOCheck();
         }
@@ -109,6 +149,7 @@ int main(void) {
             case PB2:
                 blinking ^= 1;
                 buttonState = 0;
+                break;
             case PB3: //PB3 starts transmission in mode 1
                 if (mode) {
                     if (!started) {
@@ -125,12 +166,46 @@ int main(void) {
             if (started) {
                 //UART transmission
             }
-            if (blinking) {
-                //Change the intensity based on how many cycles have passed maybe?
+            if (blinking) {                
+                // LED ON 
+                PWM(led, brightness);
+                delayMS(500);
+                
+                // LED OFF 
+                if (led == 0) {
+                    LATBbits.LATB9 = 0;
+                } else  {
+                    LATAbits.LATA6 = 0;
+                }
+                
+                delayMS(500);
+
+                continue;  // skip normal PWM
+                
             }
             //PWM stuff here
+            PWM(led, brightness);
+
         } else if (blinking) {
             //Blink when in off mode
+            
+             //Blink at full brightness when in off mode 
+            if (led == 0) {
+                LATBbits.LATB9 = 1;
+            } else  {
+                LATAbits.LATA6 = 1;
+            }
+            
+            delayMS(500);
+
+            // Turn LED Off
+            if (led == 0) {
+                LATBbits.LATB9 = 0;
+            } else {
+                LATAbits.LATA6 = 0;
+            }
+           
+            delayMS(500);
         } else {
             Idle(); //Idle if in off mode and not blinking
         }
