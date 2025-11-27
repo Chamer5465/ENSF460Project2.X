@@ -92,33 +92,33 @@ int main(void) {
         if (CNflag) {// Only check IO if a change happens
             IOCheck();
         }
-        switch (buttonState) {
-            case PB1: //PB1 toggles the mode.
-                if (LONGflag) {
-                    led ^= 1;
-                    LONGflag = 0;
-                    buttonState = 0;
-                    break;
-                } else {
-                    mode ^= 1;
-                    blinking = 0;
-                    started = 0;
-                    buttonState = 0;
-                    break;
-                }
-            case PB2:
-                blinking ^= 1;
-                buttonState = 0;
-            case PB3: //PB3 starts transmission in mode 1
-                if (mode) {
-                    if (!started) {
-                        started = 1;
-                        buttonState = 0;
+        if (inputTaken) {
+            switch (buttonState) {
+                case PB1: //PB1 toggles the mode.
+                    if (LONGflag) {
+                        led ^= 1;
+                        LONGflag = 0;
+                        break;
                     } else {
+                        mode ^= 1;
+                        blinking = 0;
                         started = 0;
+                        break;
                     }
-                }
-                break;
+                case PB2:
+                    blinking ^= 1;
+                case PB3: //PB3 starts transmission in mode 1
+                    if (mode) {
+                        if (!started) {
+                            started = 1;
+                        } else {
+                            started = 0;
+                        }
+                    }
+                    break;       
+            }
+            inputTaken = 0;
+            buttonState = 0;
         }
         
         if (mode) {
