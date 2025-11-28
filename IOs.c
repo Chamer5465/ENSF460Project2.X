@@ -7,6 +7,7 @@ uint8_t button2;
 uint8_t button3;
 
 uint8_t inputTaken = 0;
+uint8_t LONGflag;
 
 uint8_t CNflag;
 
@@ -32,6 +33,8 @@ void IOInit() {
     IPC4bits.CNIP = 3;
     IFS1bits.CNIF = 0;
     IEC1bits.CNIE = 1;
+    
+   
 }
 
 void IOCheck() {
@@ -52,7 +55,7 @@ void IOCheck() {
     
     if (!T3CONbits.TON) {
         TMR3 = 0;
-        T3CONbits = 0;
+        T3CONbits.TON = 1;
     }
     
     LONGflag = 0;
