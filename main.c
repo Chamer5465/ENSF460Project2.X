@@ -6,6 +6,7 @@
  * Created on: USE THE INFORMATION FROM THE HEADER MPLAB X IDE GENERATES FOR YOU
  */
 
+
 // FBS
 #pragma config BWRP = OFF               // Table Write Protect Boot (Boot segment may be written)
 #pragma config BSS = OFF                // Boot segment Protect (No boot program Flash segment)
@@ -56,45 +57,24 @@
 #include "UART2.h"
 #include "IOs.h"
 #include "ADC.h"
+#include  "timeDelay.h"
 
 extern uint8_t CNflag;
 extern uint8_t LONGflag;
 extern uint8_t buttonState;
+extern uint8_t inputTaken;
 
 /**
  * You might find it useful to add your own #defines to improve readability here
  */
 
-// Helper function to handle calculations of PWM.
-void PWM(uint8_t led, uint16_t duty) {
-    
-    // Clamp duty cycle 
-    if (duty < 5) duty = 5;
-    if (duty > 95) duty = 95;
-    
-    uint32_t period_ms = 25;
-    uint32_t on_time  = (period_ms * duty) / 100;
-    uint32_t off_time = period_ms - on_time;
+extern uint16_t pwm_duty;   // 0-100, updated from main
+extern uint8_t pwm_led;     // 0 = LED1, 1 = LED2
+extern uint8_t pwm_on;      // current state
+extern uint16_t pwm_counter; 
+extern uint16_t blink_counter; // for blinking
 
     
-    // Turn LED ON
-    if (led == 0) {
-        LATBbits.LATB9 = 1;  // LED1
-    } else {
-        LATAbits.LATA6 = 1;  // LED2
-    }
-    delayMS(on_time + 1);
-    
-    // Turn LED OFF
-    if (led == 0) {
-        LATBbits.LATB9 = 0;  // LED1
-    } else {
-        LATAbits.LATA6 = 0;  // LED2
-    }
-    delayMS(off_time + 1);
-}
-
-
 int main(void) {
     
     /** This is usually where you would add run-once code
@@ -104,6 +84,7 @@ int main(void) {
      */
     
     /* Let's set up our UART */    
+
     InitUART2();
     IOInit();
     timerInit();
@@ -132,84 +113,75 @@ int main(void) {
         if (CNflag) {// Only check IO if a change happens
             IOCheck();
         }
-        switch (buttonState) {
-            case PB1: //PB1 toggles the mode.
-                if (LONGflag) {
-                    led ^= 1;
-                    LONGflag = 0;
-                    buttonState = 0;
-                    break;
-                } else {
-                    mode ^= 1;
-                    blinking = 0;
-                    started = 0;
-                    buttonState = 0;
-                    break;
-                }
-            case PB2:
-                blinking ^= 1;
-                buttonState = 0;
-                break;
-            case PB3: //PB3 starts transmission in mode 1
-                if (mode) {
-                    if (!started) {
-                        started = 1;
-                        buttonState = 0;
+        
+        if(inputTaken) {
+            switch (buttonState) {
+                case PB1: //PB1 toggles the mode.
+                    if (LONGflag) {
+                        led ^= 1;
+                        LONGflag = 0;
+                        break;
                     } else {
+                        mode ^= 1;
+                        blinking = 0;
                         started = 0;
+                        break;
                     }
-                }
-                break;
+                case PB2:
+                    blinking ^= 1;
+                    break;
+                case PB3: //PB3 starts transmission in mode 1
+                    if (mode) {
+                        if (!started) {
+                            started = 1;
+                            buttonState = 0;
+                        } else {
+                            started = 0;
+                        }
+                    }
+                    break;
+            }
+            inputTaken = 0;
+            buttonState = 0;
         }
+                
+        uint16_t effective_duty = brightness;
         
         if (mode) {
             if (started) {
                 //UART transmission
             }
-            if (blinking) {                
-                // LED ON 
-                PWM(led, brightness);
-                delayMS(500);
-                
-                // LED OFF 
-                if (led == 0) {
-                    LATBbits.LATB9 = 0;
-                } else  {
-                    LATAbits.LATA6 = 0;
+            if (blinking) {    
+                // 0.5s is 2500 ticks (Timer1 ticks at 0.2ms)
+                if (blink_counter < 2500) {
+                    effective_duty = brightness; // LED on current brightness
                 }
+                else {
+                    effective_duty = 0; // LED off
+                }
+            }           
                 
-                delayMS(500);
-
-                continue;  // skip normal PWM
-                
-            }
-            //PWM stuff here
-            PWM(led, brightness);
+            pwm_duty = effective_duty; // Set duty cycle for PWM
+            pwm_led = led;             // Select which LED to control
 
         } else if (blinking) {
-            //Blink when in off mode
-            
-             //Blink at full brightness when in off mode 
-            if (led == 0) {
-                LATBbits.LATB9 = 1;
-            } else  {
-                LATAbits.LATA6 = 1;
+            //Blink when in off mode at full brightness
+            if (blink_counter < 2500) {
+                pwm_duty = 100; // LED fully on at 100 brightness
+            } 
+            else {
+                pwm_duty = 0; // LED OFF
             }
+            pwm_led = led; // Select which LED to control
             
-            delayMS(500);
-
-            // Turn LED Off
-            if (led == 0) {
-                LATBbits.LATB9 = 0;
-            } else {
-                LATAbits.LATA6 = 0;
-            }
-           
-            delayMS(500);
         } else {
+            LATBbits.LATB9 = 0;
+            LATAbits.LATA6 = 0;
+            pwm_duty = 0;
             Idle(); //Idle if in off mode and not blinking
         }
     }
     
     return 0;
-}
+} 
+
