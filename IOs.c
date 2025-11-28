@@ -1,3 +1,10 @@
+/* 
+ * File:   IOs.c
+ * Author: Chase Mackenzie, Aaron Montesines, Patricia Agdamag
+ *
+ * Created on November 1, 2025, 1:05 PM
+ */
+
 #include "IOs.h"
 
 uint8_t buttonState;
