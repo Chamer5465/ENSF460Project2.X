@@ -1,6 +1,11 @@
+/* 
+ * File:   clkChange.c
+ * Author: Chase Mackenzie, Aaron Montesines, Patricia Agdamag
+ *
+ * Created on November 1, 2025, 1:05 PM
+ */
+
 #include "clkChange.h"
-
-
 
 void newClk(unsigned int clkval) {
     uint8_t COSCNOSC;
