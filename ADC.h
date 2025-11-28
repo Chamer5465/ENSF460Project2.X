@@ -1,8 +1,8 @@
 /* 
  * File:   ADC.h
- * Author: Chase
+ * Author: Chase Mackenzie, Aaron Montesines, Patricia Agdamag
  *
- * Created on November 1, 2025, 1:06 PM
+ * Created on November 1, 2025, 1:05 PM
  */
 
 #ifndef ADC_H
