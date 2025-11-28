@@ -1,3 +1,10 @@
+/* 
+ * File:   ADC.c
+ * Author: Chase Mackenzie, Aaron Montesines, Patricia Agdamag
+ *
+ * Created on November 1, 2025, 1:05 PM
+ */
+
 #include "ADC.h"
 
 uint8_t ADCflag = 0;
