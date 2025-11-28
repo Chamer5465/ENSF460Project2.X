@@ -1,11 +1,9 @@
-
-/*
+/* 
  * File:   main.c
- * Author: UPDATE THIS WITH YOUR GROUP MEMBER NAMES OR POTENTIALLY LOSE POINTS
+ * Author: Chase Mackenzie, Aaron Montesines, Patricia Agdamag
  *
- * Created on: USE THE INFORMATION FROM THE HEADER MPLAB X IDE GENERATES FOR YOU
+ * Created on November 1, 2025, 1:05 PM
  */
-
 
 // FBS
 #pragma config BWRP = OFF               // Table Write Protect Boot (Boot segment may be written)
@@ -101,15 +99,7 @@ int main(void) {
     while(1) {
         sample = do_ADC();
         brightness = ((uint32_t)sample * 100) / MAX_ADC_VALUE;
-        
-        // For TESTING!, remove after.
-        Disp2String("Sample: ");
-        Disp2Dec(sample);
-        Disp2String(" Bright: ");
-        Disp2Dec(brightness);
-        Disp2String("\r\n");
-    
-    
+
         if (CNflag) {// Only check IO if a change happens
             IOCheck();
         }
