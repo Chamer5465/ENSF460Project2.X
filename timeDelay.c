@@ -1,3 +1,10 @@
+/* 
+ * File:   timeDelay.c
+ * Author: Chase Mackenzie, Aaron Montesines, Patricia Agdamag
+ *
+ * Created on November 1, 2025, 1:05 PM
+ */
+
 #include "timeDelay.h"
 #include "IOs.h"
 
