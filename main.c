@@ -120,6 +120,8 @@ int main(void) {
                     if (LONGflag) {
                         led ^= 1;
                         LONGflag = 0;
+                        LATBbits.LATB9 = 0;
+                        LATAbits.LATA6 = 0;
                         break;
                     } else {
                         mode ^= 1;
