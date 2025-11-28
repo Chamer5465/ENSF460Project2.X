@@ -44,13 +44,17 @@ void IOCheck() {
     button2 = PRT2;
     button3 = PRT3;
     
-    if (button1 && button2 && button3) {
+    if (button1 && button2 && button3 && !LONGflag) {
         inputTaken = 1;
         T3CONbits.TON = 0;
         return;
     }
     
-    T3CONbits.TON ^= 1;
+    if (!T3CONbits.TON) {
+        TMR3 = 0;
+        T3CONbits = 0;
+    }
+    
     LONGflag = 0;
     
     inputTaken = 0;
@@ -74,8 +78,7 @@ void __attribute__((interrupt, no_auto_psv)) _CNInterrupt(void) {
 
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) {
     IFS0bits.T3IF = 0;
+    T3CONbits.TON = 0;
     LONGflag = 1;
     inputTaken = 1;
 }
-
-
