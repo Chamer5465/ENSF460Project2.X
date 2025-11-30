@@ -38,7 +38,7 @@ void timerInit() {
     PR3 = 46875; // PR3 = 3 / (4000000^-1 * 256)
     
     
-    // Timer1 for PWM (2 kHz)
+    // Timer1 for PWM (5 kHz)
     T1CONbits.TCKPS = 1; // prescaler 1:8
     T1CONbits.TCS = 0;   // internal clock
     TMR1 = 0;
