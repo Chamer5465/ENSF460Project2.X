@@ -142,6 +142,12 @@ int main(void) {
         if (mode) {
             if (started) {
                 //UART transmission
+                Disp2String("ADC:");
+                Disp2Dec(sample);
+
+                Disp2String("INT:");
+                Disp2Dec(effective_duty);
+                //delayMS(100);  
             }
             if (blinking) {    
                 // 0.5s is 2500 ticks (Timer1 ticks at 0.2ms)
