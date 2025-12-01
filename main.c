@@ -140,15 +140,6 @@ int main(void) {
         uint16_t effective_duty = brightness;
         
         if (mode) {
-            if (started) {
-                //UART transmission
-                Disp2String("ADC:");
-                Disp2Dec(sample);
-
-                Disp2String("INT:");
-                Disp2Dec(effective_duty);
-                //delayMS(100);  
-            }
             if (blinking) {    
                 // 0.5s is 2500 ticks (Timer1 ticks at 0.2ms)
                 if (blink_counter < 2500) {
@@ -160,7 +151,18 @@ int main(void) {
             }           
                 
             pwm_duty = effective_duty; // Set duty cycle for PWM
-            pwm_led = led;             // Select which LED to control
+            pwm_led = led;             // select which LED to control
+            
+            if (started) {
+                //UART transmission
+                Disp2String("ADC:");
+                Disp2Dec(sample);
+
+                Disp2String("INT:");
+                Disp2Dec(effective_duty);
+                
+                delayMS(100);  
+            }
 
         } else if (blinking) {
             //Blink when in off mode at full brightness
@@ -182,4 +184,3 @@ int main(void) {
     
     return 0;
 } 
-
