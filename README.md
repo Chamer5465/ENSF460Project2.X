@@ -11,7 +11,7 @@
 - Note: Although the Python Script is already running, it will not start reading and recording data until PB3 has been pressed on the microcontroller.
 ### 5. Wait until the recording is completed
 - Data will be sent in alternating lines: ADC:(value) and INT:(value)
-- Script will continue recording until either the User pressed PB1 (OFF Mode) or PB3 or the 60 second interval has been completed.
+- Script will continue recording unless the User presses PB1 (OFF Mode) or PB3 or until the 60 second interval has been completed.
 - Note: If the User decides to press PB1 or PB3 to stop transmissions before the period is completed, the Python Script will still continue to run however will not be recording data until PB3 in ON mode is pressed again.
 ### 6. Transmission is complete!
 - After a period of 1 minute, two graphs, a ADC vs Time and Intensity vs Time will be generated.
