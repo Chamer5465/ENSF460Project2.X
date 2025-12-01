@@ -1,3 +1,7 @@
+# File: Receiver.py
+# Author: Chase Mackenzie, Aaron Montesines, Patricia Agdamag
+# Created on November 1, 2025, 1:05 PM
+
 import serial
 import time
 import csv
@@ -9,14 +13,16 @@ import matplotlib.pyplot as plt
 PORT = "COM3"      
 BAUD = 9600        
 DURATION = 60 #60s duration
+GROUP_NAME = "ENSF460-Group12"
 
 
 def main():
     ser = serial.Serial(PORT, BAUD, timeout=1)
     print(f"Connected to {PORT} at {BAUD} baud\n")
+    print("Press PB3 on microcontroller to start data transmission...\n")
 
-    filename = "capture.csv"
-    start = time.time()
+    filename = f"{GROUP_NAME}.csv"
+    start = None
 
     timestamps = []
     adc_values = []
@@ -29,18 +35,22 @@ def main():
         writer = csv.writer(f)
         writer.writerow(["time_s", "adc", "intensity"])
 
-        while time.time() - start < DURATION:
-            
+        while True:
+     
             # Read Uart line
             
             raw = ser.readline().decode(errors="ignore").strip()
-            raw = raw.replace("\x000", "")   
+            raw = raw.replace("\x00", "")   
 
             print("RAW:", repr(raw))        # Debug output
 
             if not raw:
                 continue
 
+            # start timer only when data starts coming in
+            if start is None and (raw.startswith("ADC:") or raw.startswith("INT:")):
+                start = time.time()
+                print("Data transmission started...\n")
             
             # Parse ADC lines
             if raw.startswith("ADC:"):
@@ -69,6 +79,9 @@ def main():
                 adc = None
                 intensity = None
 
+            if start is not None and (time.time() - start) >= DURATION:
+                break
+
     ser.close()
     print("\nSaved CSV:", filename)
 
@@ -85,7 +98,7 @@ def main():
     plt.xlabel("Time (s)")
     plt.ylabel("ADC Value")
     plt.grid(True)
-    plt.savefig("adc_plot.png")
+    plt.savefig(f"{GROUP_NAME}_adc_plot.png")
 
     #  Intensity Plot 
     plt.figure()
@@ -94,10 +107,10 @@ def main():
     plt.xlabel("Time (s)")
     plt.ylabel("Intensity (%)")
     plt.grid(True)
-    plt.savefig("intensity_plot.png")
+    plt.savefig(f"{GROUP_NAME}_intensity_plot.png")
 
     plt.show()
-    print("Plots saved as adc_plot.png and intensity_plot.png")
+    print(f"Plots saved as {GROUP_NAME}_adc_plot.png and {GROUP_NAME}_intensity_plot.png")
 
 
 if __name__ == "__main__":
